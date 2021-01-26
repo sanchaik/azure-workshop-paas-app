@@ -3,7 +3,7 @@ Install Visual Studio Code ([download here](https://code.visualstudio.com/downlo
 
 # Visual Studio Code - App Service Extension
 Search "Azure App Service" in VS Code extensions and install
-![Azure App Service Extension](images/00/vs_code_app_service_extension.jp)
+![Azure App Service Extension](images/00/vs_code_app_service_extension.jpg)
 
 # git
 Install git ([download here](https://git-scm.com/downloads))
