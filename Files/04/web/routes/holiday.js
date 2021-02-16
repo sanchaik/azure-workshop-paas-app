@@ -6,6 +6,8 @@ var Connection = require('tedious').Connection;
 var Request = require('tedious').Request;  
 var TYPES = require('tedious').TYPES;  
 
+require('dotenv').config();
+
 var config = {  
     server: process.env.MSSQLSERVER, 
     authentication: {
@@ -25,6 +27,7 @@ var config = {
 /* GET home page. */
 router.get('/', function(req, res, next) {
 
+    console.log(config);
     
     async.waterfall([
         function(callback){

@@ -1,37 +1,52 @@
 var express = require('express');
 var router = express.Router();
+var storage = require("@azure/storage-blob")
 
-const { BlobServiceClient, ContainerClient, StorageSharedKeyCredential } = require("@azure/storage-blob");
+const { BlobServiceClient, StorageSharedKeyCredential } = require("@azure/storage-blob");
+
+require('dotenv').config();
 
 /* GET home page. */
 router.get('/', async function(req, res, next) {
 
-    var viewModel = {};
-    viewModel.documents = [];
+    try {
+        var viewModel = {};
+        viewModel.logFiles = [];
 
-        if(true || process.env.AZURE_STORAGE_ACCOUNT_NAME != null) {
+        if(process.env.AZURE_STORAGE_ACCOUNT_NAME != null) {
 
-        var sharedKeyCredential = new StorageSharedKeyCredential(
-            process.env.AZURE_STORAGE_ACCOUNT_NAME, 
-            process.env.AZURE_STORAGE_ACCOUNT_KEY);
+            var sharedKeyCredential = new StorageSharedKeyCredential(
+                process.env.AZURE_STORAGE_ACCOUNT_NAME, 
+                process.env.AZURE_STORAGE_ACCOUNT_KEY);
+            
+            var blobServiceClient = new BlobServiceClient(`https://${process.env.AZURE_STORAGE_ACCOUNT_NAME}.blob.core.windows.net`, sharedKeyCredential);
+            
+            const blobSAS = storage.generateBlobSASQueryParameters({
+                containerName: "logs", 
+                permissions: storage.BlobSASPermissions.parse("r"), 
+                startsOn: new Date(new Date().valueOf() - 30),
+                expiresOn: new Date(new Date().valueOf() + 86400)
+            },
+            sharedKeyCredential 
+            ).toString();
+
+            var logsContainer = blobServiceClient.getContainerClient('logs');
+
+            for await (const blob of logsContainer.listBlobsFlat()) {
+                viewModel.logFiles.push({ 
+                    name: blob.name, 
+                    link: `https://${process.env.AZURE_STORAGE_ACCOUNT_NAME}.blob.core.windows.net/logs/${blob.name}?${blobSAS}`
+                });
+            }
+
+        }
         
-        var blobServiceClient = new BlobServiceClient(`https://${process.env.AZURE_STORAGE_ACCOUNT_NAME}.blob.core.windows.net`, sharedKeyCredential);
-        
-        var logsContainer = blobServiceClient.getContainerClient('logs');
-
-        //var blobs = await logsContainer.listBlobsFlat();
-        
-        //let blobItem = await blobs.next();
-        //while (!blobItem.done) {
-        //    console.log(`Blob ${i++}: ${blobItem.value.name}`);
-        //    blobItem = await iter.next();
-        //}
-
+        res.render('logs', viewModel);
+    } 
+    catch(err){
+        res.render('error', { error: err});
     }
-    
-    viewModel.documents.push({ name: "1", link: "1" });
 
-    res.render('logs', viewModel);
 });
 
 module.exports = router;

@@ -6,6 +6,8 @@ var Connection = require('tedious').Connection;
 var Request = require('tedious').Request;  
 var TYPES = require('tedious').TYPES;  
 
+require('dotenv').config();
+
 var config = {  
     server: process.env.MSSQLSERVER, // 'your_server.database.windows.net',  //update me
     authentication: {

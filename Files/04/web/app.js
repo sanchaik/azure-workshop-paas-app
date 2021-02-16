@@ -11,6 +11,8 @@ var holidayRouter = require('./routes/holiday');
 var myProfileRouter = require('./routes/myprofile');
 var logsRouter = require('./routes/logs');
 
+require('dotenv').config();
+
 var app = express();
 
 // view engine setup

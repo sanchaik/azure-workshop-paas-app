@@ -3,10 +3,12 @@ const { combine, timestamp, json } = format;
 require('winston-daily-rotate-file');
 const { AzureBlobTransport, IAzureBlobTransportOptions } = require('winston-azure-transport');
 
+require('dotenv').config();
+
 const dailyRotateFileTransport = filename => new transports.DailyRotateFile({
     filename: `./logs/%DATE%-${filename}.log`,
     maxSize: "10m",
-    maxDays: "7d",
+    maxDays: "365d",
     zippedArchive: true,
     datePattern: 'YYYY-MM-DD'
   });
@@ -21,8 +23,9 @@ const logger = function(filename) {
     if(process.env.LOG_BLOB_SAS_URL != null) {
         transports.push(new AzureBlobTransport({
             containerUrl: process.env.LOG_BLOB_SAS_URL, 
-            nameFormat: "web-{yyyy}{MM}{dd}.log",
-            retention: 365
+            nameFormat: "{yyyy}/{MM}/{dd}/{hh}/web.log",
+            retention: 365,
+            trace: true
         }));
     }
 
