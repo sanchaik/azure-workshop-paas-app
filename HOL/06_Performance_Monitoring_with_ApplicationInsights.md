@@ -6,4 +6,5 @@
 
 # Update Web Application
 
-
+# SDK link
+https://github.com/Microsoft/ApplicationInsights-node.js/

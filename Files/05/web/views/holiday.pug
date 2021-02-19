@@ -1,0 +1,13 @@
+extends layout
+
+block content
+    table
+        thead
+            tr
+                th='Date'
+                th='Detail'
+        tbody
+            each item in dates
+                tr
+                    td=item.date
+                    td=item.detail

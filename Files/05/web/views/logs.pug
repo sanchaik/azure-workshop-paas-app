@@ -1,0 +1,15 @@
+extends layout
+
+block content
+    p
+    p
+        h4="Log Files"
+        table
+            thead
+                tr
+                    th='Name'
+            tbody
+                each item in logFiles
+                    tr
+                        td
+                            a(href=item.link, download=item.name) #{item.name}

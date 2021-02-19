@@ -6,28 +6,64 @@ var Connection = require('tedious').Connection;
 var Request = require('tedious').Request;  
 var TYPES = require('tedious').TYPES;  
 
+const { DefaultAzureCredential } = require("@azure/identity");
+const { SecretClient } = require("@azure/keyvault-secrets");
+
+var webLogger = require('../winston')('web');
+
 require('dotenv').config();
 
-var config = {  
-    server: process.env.MSSQLSERVER, 
-    authentication: {
-        type: 'default',
-        options: {
-            userName: process.env.DBUSERNAME, 
-            password: process.env.DBPASSWORD  
-        }
-    },
-    options: {
-        // If you are on Microsoft Azure, you need encryption:
-        encrypt: true,
-        database: process.env.DBNAME 
-    }
-}; 
 
 /* GET home page. */
-router.get('/', function(req, res, next) {
+router.get('/', async function(req, res, next) {
 
-    
+    webLogger.info(`NODE_ENV = ${process.env.NODE_ENV.trim()}`);
+
+    if(process.env.NODE_ENV.trim() != 'development') 
+    {
+        try 
+        {
+            let credentials = new DefaultAzureCredential();
+            let keyVaultClient = new SecretClient(process.env.KEY_VAULT_URL, credentials);
+            let secretNames = [];
+
+            for await (let secretProperties of keyVaultClient.listPropertiesOfSecrets()) {
+                webLogger.info("Secret properties: ", secretProperties);
+                secretNames.push(secretProperties.name);
+            }
+
+            secretNames.forEach(function(name) {
+                webLogger.info(`getting secret ${name}`)
+                keyVaultClient.getSecret(name)
+                .then(function(secret) {
+                    let envVarName = secret.name.replace(/-/g, '_');
+                    webLogger.info(`setting env ${envVarName} with value from secret ${secret.name}`)
+                    process.env[envVarName] = secret.value;
+                    webLogger.info(`env var ${envVarName} is set`);
+                })
+            });
+        }
+        catch(err) {
+            res.render('error', { error: err});
+            return;
+        }
+    }
+
+    var config = {  
+        server: process.env.MSSQLSERVER, 
+        authentication: {
+            type: 'default',
+            options: {
+                userName: process.env.DBUSERNAME, 
+                password: process.env.DBPASSWORD  
+            }
+        },
+        options: {
+            // If you are on Microsoft Azure, you need encryption:
+            encrypt: true,
+            database: process.env.DBNAME 
+        }
+    }; 
     
     async.waterfall([
         function(callback){
