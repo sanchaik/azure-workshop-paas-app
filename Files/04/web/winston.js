@@ -18,7 +18,7 @@ const logger = function(filename) {
 
     var transports = [];
 
-    transports.push(dailyRotateFileTransport(filename));
+    //transports.push(dailyRotateFileTransport(filename));
 
     if(process.env.LOG_BLOB_SAS_URL != null) {
         transports.push(new AzureBlobTransport({
