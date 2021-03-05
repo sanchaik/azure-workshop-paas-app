@@ -24,6 +24,7 @@
 
 หลังจาก App registration ได้ถูกสร้างขึ้นแล้ว ให้ไปที่ **Overview** tab ของ App registration ที่ถูกสร้างขึ้น และ บันทึกค่า **Application (client) ID**, **Directory (tenant) ID** เก็บไว้
 
+ไปที่ **Authentication** Tab ทำการเลือก **ID tokens** checkbox ภายใต้หัวข้อ implicit grant and hybrid flows แล้วทำการบันทึกข้อมูล
 
 # Configure App Service to use AAD Authentication
 
